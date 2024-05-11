@@ -1,19 +1,15 @@
-"""
-Main application
-"""
 import logging
 import os
 import json
 import pathlib
 from dotenv import load_dotenv
 import requests
-from constants import FILE_LOADERS, ALLOWED_FILE_TYPES
+from libs.constants import FILE_LOADERS, ALLOWED_FILE_TYPES
 
 import streamlit as st
 
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from langchain_experimental.text_splitter import SemanticChunker
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
@@ -52,13 +48,13 @@ class ChatbotMessage(Message):
 
 
 @st.cache_resource
-def load_model(modelName, device):
-    with st.spinner(f"Downloading the {modelName} embeddings model..."):
-        embeddingModel=HuggingFaceInstructEmbeddings(
-            model_name=modelName,
+def load_model(model_name, device):
+    with st.spinner(f"Downloading the {model_name} embeddings model..."):
+        embedding_model=HuggingFaceInstructEmbeddings(
+            model_name=model_name,
             model_kwargs={"device": device}
         )
-    return embeddingModel
+    return embedding_model
 
 
 class Chatty:
@@ -67,9 +63,9 @@ class Chatty:
     """
     def __init__(
             self,
-            filePath: str,
-            fileType: str,
-            embeddingModel: str="hkunlp/instructor-large",
+            file_path: str,
+            file_type: str,
+            embedding_model: str="hkunlp/instructor-large",
             device: str="cpu"
     ) -> None:
         """
@@ -84,9 +80,9 @@ class Chatty:
 
 
         """
-        self.embeddingModel = load_model(embeddingModel, device)
+        self.embedding_model = load_model(embedding_model, device)
         self.vectordb = None
-        loader = FILE_LOADERS[fileType](file_path=filePath)
+        loader = FILE_LOADERS[file_type](file_path=file_path)
         pages = loader.load_and_split()
         docs = self.__split_into_chunks(pages)
         self.__upload_to_db(docs)
@@ -123,10 +119,11 @@ class Chatty:
         
         """
         pass
+    
+    def chat(self) -> str:
+        pass
         
 
-
-chatbot = Chatty('"../cosmos.txt"', 'txt', embeddingModel="hkunlp/instructor-large", device='cuda')
 
 class StandAloneBot:
 
