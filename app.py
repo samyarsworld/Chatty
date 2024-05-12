@@ -2,6 +2,7 @@ import os
 import pathlib
 import requests
 import streamlit as st
+from typing import List
 
 from libs.constants import ALLOWED_FILE_TYPES
 from libs.chatty import UserMessage
@@ -43,7 +44,7 @@ def handle_file_upload() -> None:
 
             # Display the available language models from Ollama
             # and store the selected model for inference
-            models = get_models("http://ollama:11434/")
+            models = get_models("http://ollama:11434")
             if models:
                 selected_model = st.selectbox("Select Model", models)
                 st.session_state['selected_model'] = selected_model            
@@ -104,10 +105,10 @@ def chat_interface() -> None:
                 st.markdown(f"{prefix}{message.content}")
 
 
-def get_models(base_url):
+def get_models(base_url: str) -> List[str]:
     try:       
         # Request model and save the model data
-        response = requests.get(f"{base_url}api/tags")
+        response = requests.get(f"{base_url}/api/tags")
         response.raise_for_status()
         models_data = response.json()
 

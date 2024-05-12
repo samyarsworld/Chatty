@@ -5,6 +5,7 @@ import pathlib
 from dotenv import load_dotenv
 import requests
 from libs.constants import FILE_LOADERS, ALLOWED_FILE_TYPES
+from libs.prompt_templates import *
 
 import streamlit as st
 
@@ -154,16 +155,7 @@ class StandAloneBot:
         #### RETRIEVAL and GENERATION ####
 
         # Prompt
-        template = """Based solely on the information given in the following context, answer the following question.
-                    If the information isn’t available in the context, simply reply with ‘Sorry, can't provide an answer.’.
-                    Please do not provide additional explanations or information.
-
-        Context: {context}
-
-        Question: {question}
-        """
-
-        prompt = ChatPromptTemplate.from_template(template)
+        prompt = ChatPromptTemplate.from_template(LLAMA3_GENERATE_TEMPLATE)
 
         # LLM
         llm = Ollama(model="llama3")
