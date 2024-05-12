@@ -2,3 +2,5 @@
 /data
 /docker
 .env
+temp
+__pycache__

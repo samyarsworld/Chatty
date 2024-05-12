@@ -4,9 +4,9 @@ import requests
 import streamlit as st
 from typing import List
 
-from libs.constants import ALLOWED_FILE_TYPES
-from libs.chatty import UserMessage
-from libs.chatty import Chatty
+from langsam.libs.constants import ALLOWED_FILE_TYPES
+from langsam.chatty import Chatty
+from langsam.libs.message import UserMessage
 
 
 def handle_file_upload() -> None:

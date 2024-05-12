@@ -4,8 +4,8 @@ import json
 import pathlib
 from dotenv import load_dotenv
 import requests
-from libs.constants import FILE_LOADERS, ALLOWED_FILE_TYPES
-from libs.prompt_templates import *
+from langsam.libs.constants import FILE_LOADERS, ALLOWED_FILE_TYPES
+from langsam.libs.constants.prompt_templates import *
 
 import streamlit as st
 
@@ -29,23 +29,6 @@ os.environ['LANGCHAIN_API_KEY'] = os.getenv("LANGCHAIN_API_KEY")
 os.environ['LANGCHAIN_PROJECT'] = os.getenv("LANGCHAIN_PROJECT")
 
 logger = logging.getLogger(__name__)
-
-class Message:
-    """
-    Base message class
-    """
-    def __init__(self, message):
-        self.message = message
-
-class UserMessage(Message):
-    """
-    Represents a message from the user.
-    """
-
-class ChatbotMessage(Message):
-    """
-    Represents a message from the chatbot.
-    """
 
 
 @st.cache_resource
