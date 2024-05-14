@@ -4,10 +4,14 @@ import json
 import pathlib
 from dotenv import load_dotenv
 import requests
+from typing import List
+import streamlit as st
+
+
+
 from langsam.libs.constants import FILE_LOADERS, ALLOWED_FILE_TYPES
 from langsam.libs.constants.prompt_templates import *
 
-import streamlit as st
 
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
@@ -67,9 +71,9 @@ class Chatty:
         self.embedding_model = load_model(embedding_model, device)
         self.vectordb = None
         loader = FILE_LOADERS[file_type](file_path=file_path)
-        pages = loader.load_and_split()
-        docs = self.__split_into_chunks(pages)
-        self.__upload_to_db(docs)
+        files = loader.load_and_split()
+        docs = self._split_into_chunks(files)
+        self._upload_to_db(docs)
 
         self.memory = ConversationBufferMemory(
             memory_key="chat_history",
@@ -84,28 +88,71 @@ class Chatty:
             memory=self.memory
         )
 
-    def __upload_to_db(self, docs):
+    def _split_into_chunks(self, files: List[str]) -> List[str]:
+        """
+        Split the document files into chunks. Splitting text by recursively
+        look at characters. Recursively tries to split by different characters
+        to find one that works.
+
+        Args:
+            files: A list of files
+
+        Returns:
+            List of splitted documents
+        """
+
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=256, chunk_overlap=32
+        )
+
+        return text_splitter.split_documents(files)
+
+    
+    def _upload_to_db(self, docs: List[str]) -> None:
         """
         Upload to vector database.
+
         Args:
-
-        Returns:
-
+            docs: List of documents to store in the database.
         """
-        pass
+        # Simplify metadata for all documents
+        docs = [self._stringify_metadata(doc) for doc in docs]
 
-    def __split_into_chunks(self, pages):
+        # Store documents in Chroma
+        self.vectordb = Chroma.from_documents(docs, embedding=self.embedding_model)
+        self.vectordb.persist()
+
+    def _stringify_metadata(self, document: str) -> str:
         """
-        Split pages into chunks.
+        Iterate over the existing metadata and ensure values
+        are stored as strings.
+
         Args:
+            document: Chunked document to process
 
-        Returns:
-        
+        returns:
+            A document with any metadata values cast to string
         """
-        pass
+        metadata = getattr(document, "metadata", None)
+        if isinstance(metadata, dict):
+            for key, value in metadata.items():
+                if isinstance(value, (list, dict)):
+                    metadata[key] = str(value)
+        return document
     
-    def chat(self) -> str:
+
+    
+    def chat(self, question: str) -> str:
+        """
+        Main chat interface. Generates a list of queries to send to the LLM, then
+        collect responses and append to the conversation_history instance
+        attribute for display.
+
+        Args
+            question: user query
+        """
         pass
+
         
 
 
